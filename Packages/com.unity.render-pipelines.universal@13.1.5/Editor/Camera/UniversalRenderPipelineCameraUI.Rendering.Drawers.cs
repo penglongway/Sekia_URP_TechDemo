@@ -83,8 +83,7 @@ namespace UnityEditor.Rendering.Universal
                         GroupOption.Indent,
                         CED.Conditional(
                             (serialized, owner) =>
-                                (AntialiasingMode)serialized.antialiasing.intValue == AntialiasingMode.SubpixelMorphologicalAntiAliasing ||
-                                (AntialiasingMode)serialized.antialiasing.intValue == AntialiasingMode.TemporalAntialiasing,
+                                (AntialiasingMode)serialized.antialiasing.intValue == AntialiasingMode.SubpixelMorphologicalAntiAliasing,
                             CED.Group(DrawerRenderingSMAAQuality) //SMAA
                             )
                         )

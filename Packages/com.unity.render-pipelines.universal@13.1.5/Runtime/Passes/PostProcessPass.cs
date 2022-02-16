@@ -783,28 +783,10 @@ namespace UnityEngine.Rendering.Universal.Internal
             var offset = cameraData.GetJitterParams();
             Vector4 p = new Vector4(offset.x / cameraData.pixelWidth, offset.y / cameraData.pixelHeight, reset ? 1 : 0);
 
-            if (cameraData.antialiasingQuality <= AntialiasingQuality.Medium)
-            {
-                var material = m_Materials.taa;
-                if (cameraData.antialiasingQuality == AntialiasingQuality.Medium)
-                {
-                    material.EnableKeyword("_USE_MOTION_VECTOR_BUFFER");
-                }
-                else
-                {
-                    material.DisableKeyword("_USE_MOTION_VECTOR_BUFFER");
-                }
-                cmd.SetRenderTarget(write, destination, 0, CubemapFace.Unknown, 0);
-                material.SetVector("_Params", p);
-                cmd.DrawProcedural(Matrix4x4.identity, material, 0, MeshTopology.Triangles, 3);
-            }
-            else
-            {
-                var cs = m_Materials.taaCS;
-                cs.SetTexture(0, "_Result", write);
-                cs.SetVector("_Params", p);
-                cmd.DispatchCompute(cs, 0, (cameraData.pixelWidth - 1) / 8 + 1, (cameraData.pixelHeight - 1) / 8 + 1, 1);
-            }
+            var cs = m_Materials.taaCS;
+            cs.SetTexture(0, "_Result", write);
+            cs.SetVector("_Params", p);
+            cmd.DispatchCompute(cs, 0, (cameraData.pixelWidth - 1) / 8 + 1, (cameraData.pixelHeight - 1) / 8 + 1, 1);
             return write;
         }
 

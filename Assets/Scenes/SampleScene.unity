@@ -778,7 +778,7 @@ MonoBehaviour:
   m_Antialiasing: 3
   m_AntialiasingQuality: 1
   m_StopNaN: 1
-  m_Dithering: 0
+  m_Dithering: 1
   m_ClearDepth: 1
   m_AllowXRRendering: 1
   m_RequiresDepthTexture: 0
