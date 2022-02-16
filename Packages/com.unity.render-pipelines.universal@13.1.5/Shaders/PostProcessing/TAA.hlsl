@@ -19,7 +19,6 @@ Texture2D _CameraDepthTexture;
 float4 _CameraDepthTexture_TexelSize;
 Texture2D _InputHistoryTexture;
 Texture2D _InputTexture;
-float4 _InputTexture_TexelSize;
 Texture2D _CameraMotionVectorsTexture;
 
 static const int2 kOffsets3x3[9] =
@@ -119,15 +118,9 @@ float3 ClipHistory(float3 History, float3 BoxMin, float3 BoxMax)
     return lerp(History, Filtered, ClipBlend);
 }
 
-float3 GetPositionWS(float2 positionSS, float2 invScreenSize, float deviceDepth, float4x4 invViewProjMatrix)
+float3 GetPositionWS(float2 screenUV, float deviceDepth, float4x4 invViewProjMatrix)
 {
-    float2 screenUV = positionSS;
-#if defined(SHADER_STAGE_COMPUTE) || defined(SHADER_STAGE_RAY_TRACING)
-    //compute shader需要额外的半个像素偏移用于将int位置转换为像素中心
-    screenUV += float2(0.5, 0.5);
-#endif
-    screenUV *= invScreenSize;
-
+    //屏幕空间的UV转NDC空间 DX平台需要翻转Y
     float4 positionNDC = float4(screenUV * 2.0 - 1.0, deviceDepth, 1.0);
     #if UNITY_UV_STARTS_AT_TOP
         positionNDC.y = -positionNDC.y;
@@ -139,9 +132,9 @@ float3 GetPositionWS(float2 positionSS, float2 invScreenSize, float deviceDepth,
 }
 
 //计算屏幕空间的前后帧顶点偏移的UV向量
-float2 GetMotionVector(float2 screenPos, float depth)
+float2 GetMotionVector(float2 screenUV, float deviceDepth)
 {
-    float3 positionWS = GetPositionWS(screenPos, _ScreenSize.zw, depth, UNITY_MATRIX_I_VP);
+    float3 positionWS = GetPositionWS(screenUV, deviceDepth, UNITY_MATRIX_I_VP);
     float4 curClipPos = mul(unity_UnJitteredMatrixVP, float4(positionWS, 1));
     curClipPos /= curClipPos.w; //需要转换为GL风格平台下的NDC坐标
 

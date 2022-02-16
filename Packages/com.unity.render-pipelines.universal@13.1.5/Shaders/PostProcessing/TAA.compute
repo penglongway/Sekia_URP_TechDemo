@@ -71,16 +71,16 @@ float2 WeightedLerpFactors(float WeightA, float WeightB, float Blend)
 [numthreads(THREADGROUP_SIZE, THREADGROUP_SIZE, 1)]
 void TAACS(int3 id : SV_DispatchThreadID, int2 GroupID : SV_GroupID, int2 GroupThreadID : SV_GroupThreadID)
 {
-    float2 OriginUV = (id.xy + 0.5) * _InputTexture_TexelSize.xy;
-    float depth = _CameraDepthTexture.SampleLevel(sampler_PointClamp, OriginUV, 0).r;
-    float2 Motion = GetMotionVector(id.xy, depth);
-    float2 MotionUV = GetClosestFragment(OriginUV, depth);
+    float2 screenUV = (id.xy + 0.5) * _ScreenSize.zw;
+    float depth = _CameraDepthTexture.SampleLevel(sampler_PointClamp, screenUV, 0).r;
+    float2 Motion = GetMotionVector(screenUV, depth);
+    float2 MotionUV = GetClosestFragment(screenUV, depth);
     float2 EncodedMotion = _CameraMotionVectorsTexture.SampleLevel(sampler_LinearClamp, MotionUV, 0).rg;
     if(any(EncodedMotion > 0))
     {
         Motion = DecodeVelocityFromTexture(EncodedMotion);
     }
-    float2 HistoryUV = OriginUV - Motion;
+    float2 HistoryUV = screenUV - Motion;
     
     bool IgnoreHistory = _Reset;
     if(any(HistoryUV < 0) || any(HistoryUV > 1))
@@ -110,7 +110,7 @@ void TAACS(int3 id : SV_DispatchThreadID, int2 GroupID : SV_GroupID, int2 GroupT
     HistoryColor = ClipHistory(HistoryColor, AABBMin, AABBMax);
     
     //这里使用双线性采样，可考虑替换为 Catmull-Rom，加强锐化
-    float3 SceneColor = TransformColorToTAASpace(_InputTexture.SampleLevel(sampler_LinearClamp, OriginUV - _Jitter, 0).rgb);
+    float3 SceneColor = TransformColorToTAASpace(_InputTexture.SampleLevel(sampler_LinearClamp, screenUV - _Jitter, 0).rgb);
     float2 BackTemp = Motion * _ScreenParams.xy;
     float Velocity = abs(BackTemp.x) + abs(BackTemp.y);
     float HistoryBlur = saturate(Velocity) * 0.5;
