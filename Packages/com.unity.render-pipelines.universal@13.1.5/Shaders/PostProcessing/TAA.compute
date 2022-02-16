@@ -73,7 +73,7 @@ void TAACS(int3 id : SV_DispatchThreadID, int2 GroupID : SV_GroupID, int2 GroupT
 {
     float2 OriginUV = (id.xy + 0.5) * _InputTexture_TexelSize.xy;
     float depth = _CameraDepthTexture.SampleLevel(sampler_PointClamp, OriginUV, 0).r;
-    float2 Motion = GetMotionVector(id.xy + 0.5, depth);
+    float2 Motion = GetMotionVector(id.xy, depth);
     float2 MotionUV = GetClosestFragment(OriginUV, depth);
     float2 EncodedMotion = _CameraMotionVectorsTexture.SampleLevel(sampler_LinearClamp, MotionUV, 0).rg;
     if(any(EncodedMotion > 0))
