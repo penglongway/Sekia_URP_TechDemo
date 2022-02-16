@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -42,7 +42,8 @@ namespace UnityEngine.Rendering.Universal
         FastApproximateAntialiasing,
         [InspectorName("Subpixel Morphological Anti-aliasing (SMAA)")]
         SubpixelMorphologicalAntiAliasing,
-        //TemporalAntialiasing
+        [InspectorName("Temporal Anti-aliasing (TAA)")]
+        TemporalAntialiasing
     }
 
     /// <summary>

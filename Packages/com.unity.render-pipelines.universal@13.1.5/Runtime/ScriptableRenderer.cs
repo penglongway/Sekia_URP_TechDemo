@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -118,9 +118,14 @@ namespace UnityEngine.Rendering.Universal
             //SetViewAndProjectionMatrices(cmd, viewMatrix, cameraData.GetDeviceProjectionMatrix(), setInverseMatrices);
             cmd.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
 
+            var unJitteredProjectionMatrix = cameraData.GetUnJitteredProjectionMatrix();
+            cmd.SetGlobalMatrix(ShaderPropertyId.unJitteredViewAndProjectionMatrix,
+                    GL.GetGPUProjectionMatrix(unJitteredProjectionMatrix, true) * viewMatrix);
+            cmd.SetGlobalVector(ShaderPropertyId.jitterParams, cameraData.GetJitterParams());
+
             if (setInverseMatrices)
             {
-                Matrix4x4 gpuProjectionMatrix = cameraData.GetGPUProjectionMatrix();
+                Matrix4x4 gpuProjectionMatrix = GL.GetGPUProjectionMatrix(projectionMatrix, true);
                 Matrix4x4 viewAndProjectionMatrix = gpuProjectionMatrix * viewMatrix;
                 Matrix4x4 inverseViewMatrix = Matrix4x4.Inverse(viewMatrix);
                 Matrix4x4 inverseProjectionMatrix = Matrix4x4.Inverse(gpuProjectionMatrix);

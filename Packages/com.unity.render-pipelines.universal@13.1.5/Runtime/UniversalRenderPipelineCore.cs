@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Unity.Collections;
 
@@ -56,11 +56,21 @@ namespace UnityEngine.Rendering.Universal
         // We might change this API soon.
         Matrix4x4 m_ViewMatrix;
         Matrix4x4 m_ProjectionMatrix;
+        Matrix4x4 m_UnJitteredProjectionMatrix;
+        Vector2 m_JitterParams;
 
         internal void SetViewAndProjectionMatrix(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix)
         {
             m_ViewMatrix = viewMatrix;
             m_ProjectionMatrix = projectionMatrix;
+        }
+
+        internal void SetViewAndProjectionMatrix(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix, Vector4 jitterParams, Matrix4x4 unJitteredProjectionMatrix)
+        {
+            m_ViewMatrix = viewMatrix;
+            m_ProjectionMatrix = projectionMatrix;
+            m_JitterParams = jitterParams;
+            m_UnJitteredProjectionMatrix = unJitteredProjectionMatrix;
         }
 
         /// <summary>
@@ -99,6 +109,16 @@ namespace UnityEngine.Rendering.Universal
         public Matrix4x4 GetGPUProjectionMatrix(int viewIndex = 0)
         {
             return GL.GetGPUProjectionMatrix(GetProjectionMatrix(viewIndex), IsCameraProjectionMatrixFlipped());
+        }
+
+        public Vector4 GetJitterParams()
+        {
+            return m_JitterParams;
+        }
+
+        public Matrix4x4 GetUnJitteredProjectionMatrix()
+        {
+            return m_UnJitteredProjectionMatrix;
         }
 
         public Camera camera;
@@ -338,6 +358,10 @@ namespace UnityEngine.Rendering.Universal
 
         // Required for 2D Unlit Shadergraph master node as it doesn't currently support hidden properties.
         public static readonly int rendererColor = Shader.PropertyToID("_RendererColor");
+
+        public static readonly int unJitteredViewAndProjectionMatrix = Shader.PropertyToID("unity_UnJitteredMatrixVP");
+        public static readonly int prevViewAndProjectionMatrix = Shader.PropertyToID("unity_PrevMatrixVP");
+        public static readonly int jitterParams = Shader.PropertyToID("unity_JitterParams");
     }
 
     public struct PostProcessingData
@@ -875,6 +899,7 @@ namespace UnityEngine.Rendering.Universal
         Bloom,
         LensFlareDataDriven,
         MotionVectors,
+        TAA,
 
         FinalBlit
     }

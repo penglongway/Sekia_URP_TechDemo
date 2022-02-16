@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering.Universal.Internal;
 
@@ -65,6 +65,7 @@ namespace UnityEngine.Rendering.Universal
         DepthNormalOnlyPass m_DepthNormalPrepass;
         CopyDepthPass m_PrimedDepthCopyPass;
         MotionVectorRenderPass m_MotionVectorPass;
+        MotionVectorPass m_MotionVectorPass_New;
         MainLightShadowCasterPass m_MainLightShadowCasterPass;
         AdditionalLightsShadowCasterPass m_AdditionalLightsShadowCasterPass;
         GBufferPass m_GBufferPass;
@@ -100,6 +101,7 @@ namespace UnityEngine.Rendering.Universal
         RTHandle m_OpaqueColor;
         RTHandle m_MotionVectorColor;
         RTHandle m_MotionVectorDepth;
+        RenderTargetHandle m_MotionVector;
 
         ForwardLights m_ForwardLights;
         DeferredLights m_DeferredLights;
@@ -197,6 +199,8 @@ namespace UnityEngine.Rendering.Universal
             m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrePasses, RenderQueueRange.opaque, data.opaqueLayerMask);
             m_DepthNormalPrepass = new DepthNormalOnlyPass(RenderPassEvent.BeforeRenderingPrePasses, RenderQueueRange.opaque, data.opaqueLayerMask);
             m_MotionVectorPass = new MotionVectorRenderPass(m_CameraMotionVecMaterial, m_ObjectMotionVecMaterial);
+            m_MotionVectorPass_New = new MotionVectorPass(RenderPassEvent.AfterRenderingSkybox, data.postProcessData);
+            m_MotionVector.Init("_CameraMotionVectorsTexture");
 
             if (this.renderingMode == RenderingMode.Forward)
             {
@@ -336,24 +340,24 @@ namespace UnityEngine.Rendering.Universal
                     switch (fullScreenDebugMode)
                     {
                         case DebugFullScreenMode.Depth:
-                        {
-                            DebugHandler.SetDebugRenderTarget(m_DepthTexture.nameID, normalizedRect, true);
-                            break;
-                        }
+                            {
+                                DebugHandler.SetDebugRenderTarget(m_DepthTexture.nameID, normalizedRect, true);
+                                break;
+                            }
                         case DebugFullScreenMode.AdditionalLightsShadowMap:
-                        {
-                            DebugHandler.SetDebugRenderTarget(m_AdditionalLightsShadowCasterPass.m_AdditionalLightsShadowmapHandle, normalizedRect, false);
-                            break;
-                        }
+                            {
+                                DebugHandler.SetDebugRenderTarget(m_AdditionalLightsShadowCasterPass.m_AdditionalLightsShadowmapHandle, normalizedRect, false);
+                                break;
+                            }
                         case DebugFullScreenMode.MainLightShadowMap:
-                        {
-                            DebugHandler.SetDebugRenderTarget(m_MainLightShadowCasterPass.m_MainLightShadowmapTexture, normalizedRect, false);
-                            break;
-                        }
+                            {
+                                DebugHandler.SetDebugRenderTarget(m_MainLightShadowCasterPass.m_MainLightShadowmapTexture, normalizedRect, false);
+                                break;
+                            }
                         default:
-                        {
-                            break;
-                        }
+                            {
+                                break;
+                            }
                     }
                 }
                 else
@@ -814,6 +818,12 @@ namespace UnityEngine.Rendering.Universal
                 var data = MotionVectorRendering.instance.GetMotionDataForCamera(camera, cameraData);
                 m_MotionVectorPass.Setup(m_MotionVectorColor, m_MotionVectorDepth, data);
                 EnqueuePass(m_MotionVectorPass);
+            }
+
+            if (cameraData.postProcessEnabled && cameraData.antialiasing == AntialiasingMode.TemporalAntialiasing)
+            {
+                m_MotionVectorPass_New.Setup(ref renderingData, m_MotionVector, new RenderTargetHandle(m_ActiveCameraDepthAttachment.nameID));
+                EnqueuePass(m_MotionVectorPass_New);
             }
 
             bool lastCameraInTheStack = cameraData.resolveFinalTarget;

@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Linq;
 
 namespace UnityEditor.Rendering.PostProcessing
 {
-    [InitializeOnLoad]
+    //[InitializeOnLoad] //关闭自动上Define
     sealed class DefineSetter
     {
         const string k_Define = "UNITY_POST_PROCESSING_STACK_V2";
