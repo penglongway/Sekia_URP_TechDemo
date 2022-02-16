@@ -1523,7 +1523,6 @@ namespace UnityEngine.Rendering.Universal.Internal
             public readonly Material uber;
             public readonly Material finalPass;
             public readonly Material lensFlareDataDriven;
-            public readonly Material taa;
             public readonly ComputeShader taaCS;
 
             public MaterialLibrary(PostProcessData data)
@@ -1538,7 +1537,6 @@ namespace UnityEngine.Rendering.Universal.Internal
                 uber = Load(data.shaders.uberPostPS);
                 finalPass = Load(data.shaders.finalPostPassPS);
                 lensFlareDataDriven = Load(data.shaders.LensFlareDataDrivenPS);
-                taa = Load(data.shaders.taaPS);
                 taaCS = data.shaders.taaCS;
             }
 
@@ -1568,7 +1566,6 @@ namespace UnityEngine.Rendering.Universal.Internal
                 CoreUtils.Destroy(bloom);
                 CoreUtils.Destroy(uber);
                 CoreUtils.Destroy(finalPass);
-                CoreUtils.Destroy(taa);
             }
         }
 
