@@ -25,7 +25,6 @@ MonoBehaviour:
     LensFlareDataDrivenPS: {fileID: 4800000, guid: 6cda457ac28612740adb23da5d39ea92, type: 3}
     uberPostPS: {fileID: 4800000, guid: e7857e9d0c934dc4f83f270f8447b006, type: 3}
     finalPostPassPS: {fileID: 4800000, guid: c49e63ed1bbcb334780a3bd19dfed403, type: 3}
-    taaPS: {fileID: 4800000, guid: 0bee256c4267453088a56394ef569317, type: 3}
     taaCS: {fileID: 7200000, guid: a8ffdb9d20f44deca1351d2176e9af0d, type: 3}
   textures:
     blueNoise16LTex:
